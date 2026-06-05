@@ -1,9 +1,31 @@
 import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
+import Collection from "./pages/Collection";
+import Product from "./pages/Product";
+import Login from "./pages/Login";
+import PlaceOrder from "./pages/PlaceOrder";
 
 const App = () => {
-  return <div>
-    <h1>Welcome to the React App!</h1>
-  </div>;
+  return (
+    <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/collection" element={<Collection />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/product/:productId" element={<Product />} />
+        <Route path="/placeorder" element={<PlaceOrder />} />
+      </Routes>
+    </div>
+  );
 };
 
 export default App;
