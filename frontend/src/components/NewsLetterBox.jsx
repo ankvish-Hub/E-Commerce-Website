@@ -10,7 +10,7 @@ const NewsLetterBox = () => {
       <p className="text-2xl font-medium text-gray-800">
         Subscribe Now & Get 20% Off
       </p>
-      <p className="tetx-gray-400 mt-3">
+      <p className="tetx-gray-400 mt-3 text-md">
         Lorem, ipsum dolor sit amet consectetur adipisicing elit.
       </p>
       <form

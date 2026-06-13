@@ -94,11 +94,11 @@ const Product = () => {
       {/*---------------------------- Description & Review Section --------------------------------*/}
       <div className="mt-20">
         <div className="flex gap-1">
-          <p className="border px-5 py-3 text-sm">Description</p>
+          <p className="border px-5 py-3 text-md">Description</p>
 
-          <p className="border px-5 py-3 text-sm">Reviews (122)</p>
+          <p className="border px-5 py-3 text-md">Reviews (122)</p>
         </div>
-        <div className="flex flex-col gap-4 border px-6 py-6 text-sm mt-4">
+        <div className="flex flex-col gap-4 border px-6 py-6 text-md mt-4 text-gray-600">
           <p>
             An e-commerce website is an online platform that facilitates the
             buying and selling of products or services over the internet. It
