@@ -1,4 +1,4 @@
-import {v2 as cloudinary} from "cloudinary"
+import { v2 as cloudinary } from "cloudinary"
 
 
 const connectCloudinary = () => {
@@ -8,6 +8,7 @@ const connectCloudinary = () => {
     api_secret: process.env.CLOUDINARY_SECRET_KEY,
     secure: true,
   });
+
 
 
 }
