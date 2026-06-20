@@ -15,12 +15,12 @@ const userSchema = new mongoose.Schema({
     required: true,
 
   },
-  cardData: {
+  cartData: {
     type: Object,
-    default: {}
+    default: {},
 
 
-  }
+  },
 
 
 }, { minimize: false })
