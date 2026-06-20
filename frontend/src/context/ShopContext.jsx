@@ -1,24 +1,29 @@
-import { createContext, useState } from "react";
-import { products } from "../assets/assets";
+import { createContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { products as localProducts } from "../assets/assets";
+import axios from "axios";
 
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
   const currency = "$";
   const delivery_fee = 10;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const products = localProducts;
+  const [token, setToken] = useState("");
   const navigate = useNavigate();
 
-  const addToCart = (itemId, size) => {
+  const addToCart = async (itemId, size) => {
     if (!size) {
       toast.error("Select Product Size");
       return;
     }
-    toast.success("Added to Cart 🛒");
+
+    toast.success("Added to Cart");
 
     let cartData = structuredClone(cartItems);
 
@@ -32,7 +37,26 @@ const ShopContextProvider = (props) => {
       cartData[itemId] = {};
       cartData[itemId][size] = 1;
     }
+
     setCartItems(cartData);
+
+    // Backend sync
+    if (token) {
+      try {
+        await axios.post(
+          backendUrl + "/api/cart/add",
+          { itemId, size },
+          {
+            headers: {
+              token,
+            },
+          },
+        );
+      } catch (error) {
+        console.log(error);
+        toast.error(error.response?.data?.message || error.message);
+      }
+    }
   };
 
   const getCartCount = () => {
@@ -53,36 +77,88 @@ const ShopContextProvider = (props) => {
 
   const updateQuantity = async (itemId, size, quantity) => {
     let cartData = structuredClone(cartItems);
-    cartData[itemId][size] = quantity;
+
+    if (quantity <= 0) {
+      if (cartData[itemId]) {
+        delete cartData[itemId][size];
+        if (Object.keys(cartData[itemId] || {}).length === 0) {
+          delete cartData[itemId];
+        }
+      }
+    } else {
+      if (!cartData[itemId]) {
+        cartData[itemId] = {};
+      }
+      cartData[itemId][size] = Number(quantity);
+    }
+
     setCartItems(cartData);
+
+    if (token) {
+      try {
+        await axios.post(
+          backendUrl + "/api/cart/update",
+          { itemId, size, quantity },
+          { headers: { token } },
+        );
+      } catch (error) {
+        console.log(error);
+        toast.error(error.response?.data?.message || error.message);
+      }
+    }
   };
 
   const getCartAmount = () => {
     let totalAmount = 0;
     for (const items in cartItems) {
       for (const item in cartItems[items]) {
-        totalAmount +=
-          cartItems[items][item] *
-          products.find((product) => product._id === items).price;
+        const product = products.find((product) => product._id === items);
+        totalAmount += cartItems[items][item] * (product?.price || 0);
       }
     }
     return totalAmount;
   };
 
+  const getUserCart = async (token) => {
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/cart/get",
+        {},
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        setCartItems(response.data.cartData);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (!token && localStorage.getItem("token")) {
+      setToken(localStorage.getItem("token"));
+      getUserCart(localStorage.getItem("token"));
+    }
+  }, []);
+
   const value = {
-    products: products,
-    currency: currency,
-    delivery_fee: delivery_fee,
-    search: search,
-    setSearch: setSearch,
-    showSearch: showSearch,
-    setShowSearch: setShowSearch,
-    cartItems: cartItems,
-    addToCart: addToCart,
-    getCartCount: getCartCount,
-    updateQuantity: updateQuantity,
-    getCartAmount: getCartAmount,
-    navigate: navigate,
+    products,
+    currency,
+    delivery_fee,
+    search,
+    setSearch,
+    showSearch,
+    setShowSearch,
+    cartItems,
+    addToCart,
+    getCartCount,
+    updateQuantity,
+    getCartAmount,
+    navigate,
+    backendUrl,
+    setToken,
+    token,
   };
 
   return (

@@ -1,14 +1,19 @@
-import { useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 import ProductItem from "./ProductItem";
 
 const BestSeller = () => {
   const { products } = useContext(ShopContext);
+  const [bestSeller, setBestSeller] = useState([]);
 
-  const bestSeller = products
-    .filter((item) => item.bestseller || item.bestSeller)
-    .slice(0, 5);
+
+  useEffect(() => {
+    const bestProduct = products.filter((item) => (item.bestseller));
+    setBestSeller(bestProduct.slice(0, 5))
+  }, [products]);
+
+  
 
   return (
     <div className="my-10">
