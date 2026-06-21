@@ -74,7 +74,7 @@ const PlaceOrder = () => {
 
             if (response.data.success) {
               setCartItems({});
-              toast.success("Order placed successfully 🎉");
+              toast.success("Order Placed Successfully");
               navigate("/orders");
             } else {
               toast.error(response.data.message);
@@ -168,9 +168,9 @@ const PlaceOrder = () => {
           <input
             required
             onChange={onChangeHandler}
-            name="number"
-            value={formData.number}
-            type="number"
+            name="zipcode"
+            value={formData.zipcode}
+            type="text"
             placeholder="Zip Code"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />

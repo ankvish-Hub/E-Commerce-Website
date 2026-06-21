@@ -54,11 +54,14 @@ const Orders = () => {
       </div>
 
       <div>
-        {orderData.slice(1, 4).map((item) => (
-          <div
-            key={item._id}
-            className="py-4 border-b text-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-          >
+        {orderData.length === 0 ? (
+          <p className="py-8 text-center text-gray-500">No orders found.</p>
+        ) : (
+          orderData.map((item) => (
+            <div
+              key={item._id}
+              className="py-4 border-b text-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+            >
             {/* Product Details */}
             <div className="flex items-start gap-6 text-sm">
               <img
@@ -101,7 +104,8 @@ const Orders = () => {
               </button>
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
