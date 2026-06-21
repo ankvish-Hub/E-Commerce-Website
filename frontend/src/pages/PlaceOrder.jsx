@@ -2,18 +2,104 @@ import React, { useContext, useState } from "react";
 import Title from "../components/Title";
 import CardTotal from "../components/CardTotal";
 import { assets } from "../assets/assets";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 import { ShopContext } from "../context/ShopContext";
 
-
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
+  const {
+    navigate,
+    backendUrl,
+    token,
+    cartItems,
+    setCartItems,
+    getCartAmount,
+    delivery_fee,
+    products,
+  } = useContext(ShopContext);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+    phone: "",
+  });
 
-  const {navigate} = useContext(ShopContext);
+  const onChangeHandler = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
 
+    setFormData((data) => ({ ...data, [name]: value }));
+  };
+
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    try {
+      let orderItems = [];
+      for (const items in cartItems) {
+        for (const item in cartItems[items]) {
+          if (cartItems[items][item] > 0) {
+            const itemInfo = structuredClone(
+              products.find((product) => product._id === items),
+            );
+            if (itemInfo) {
+              itemInfo.size = item;
+              itemInfo.quantity = cartItems[items][item];
+              orderItems.push(itemInfo);
+            }
+          }
+        }
+      }
+
+      let orderData = {
+        address: formData,
+        items: orderItems,
+        amount: getCartAmount() + delivery_fee,
+      };
+
+      switch (method) {
+        case "cod":
+          try {
+            const response = await axios.post(
+              backendUrl + "/api/order/place",
+              orderData,
+              { headers: { token } },
+            );
+
+            if (response.data.success) {
+              setCartItems({});
+              toast.success("Order placed successfully 🎉");
+              navigate("/orders");
+            } else {
+              toast.error(response.data.message);
+            }
+          } catch (error) {
+            console.log(error);
+            toast.error(error.response?.data?.message || error.message);
+          }
+          break;
+
+        default:
+          toast.error("Invalid payment method");
+          break;
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message)
+    }
+  };
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t">
+    <form
+      onSubmit={onSubmitHandler}
+      className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t"
+    >
       {/* ---------------------------- left Side ------------------------ */}
 
       <div className="flex flex-col gap-4 w-full sm:max-w-[480px]">
@@ -22,33 +108,57 @@ const PlaceOrder = () => {
         </div>
         <div className="flex  gap-3">
           <input
+            required
+            onChange={onChangeHandler}
+            name="firstName"
+            value={formData.firstName}
             type="text"
             placeholder="First Name"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
           <input
+            required
+            onChange={onChangeHandler}
+            name="lastName"
+            value={formData.lastName}
             type="text"
             placeholder="Last Name"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
         <input
+          required
+          onChange={onChangeHandler}
+          name="email"
+          value={formData.email}
           type="email"
           placeholder="Enter Your Email"
           className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
         />
         <input
+          required
+          onChange={onChangeHandler}
+          name="street"
+          value={formData.street}
           type="text"
           placeholder="Street"
           className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
         />
         <div className="flex  gap-3">
           <input
+            required
+            onChange={onChangeHandler}
+            name="city"
+            value={formData.city}
             type="text"
             placeholder="City"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
           <input
+            required
+            onChange={onChangeHandler}
+            name="state"
+            value={formData.state}
             type="text"
             placeholder="State"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
@@ -56,17 +166,29 @@ const PlaceOrder = () => {
         </div>
         <div className="flex  gap-3">
           <input
+            required
+            onChange={onChangeHandler}
+            name="number"
+            value={formData.number}
             type="number"
             placeholder="Zip Code"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
           <input
+            required
+            onChange={onChangeHandler}
+            name="country"
+            value={formData.country}
             type="text"
             placeholder="Country"
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
           />
         </div>
         <input
+          required
+          onChange={onChangeHandler}
+          name="phone"
+          value={formData.phone}
           type="number"
           placeholder="Phone"
           className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
@@ -124,12 +246,16 @@ const PlaceOrder = () => {
             </div>
           </div>
           <div className="w-full text-end mt-8">
-            <button onClick={() => navigate("/orders")} className="bg-black text-white px-16 py-3 text-sm active:bg-gray-700 cursor-pointer">PLACE ORDER</button>
-
+            <button
+              type="submit"
+              className="bg-black text-white px-16 py-3 text-sm active:bg-gray-700 cursor-pointer"
+            >
+              PLACE ORDER
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 
